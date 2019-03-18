@@ -4,5 +4,11 @@
   "main": "index.js",
   "repository": "https://github.com/Squishy123/webRTC-Basics.git",
   "author": "Christian Wang <christian.gnaw@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "restify": "^8.2.0"
+  },
+  "scripts": {
+    "dev": "nodemon src/server.js"
+  }
 }
