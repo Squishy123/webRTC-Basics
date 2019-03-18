@@ -1,0 +1,8 @@
+{
+  "name": "webRTC-Basics",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Squishy123/webRTC-Basics.git",
+  "author": "Christian Wang <christian.gnaw@gmail.com>",
+  "license": "MIT"
+}
