@@ -48,7 +48,7 @@ async function removeWebCamAccess(e) {
 }
 
 //setup websocket connection
-let ws = new WebSocket('ws://localhost:3000');
+let ws = new WebSocket('ws://192.168.2.22:3000');
 
 ws.onopen = () => {
     console.log(`Connected to WS Server!`);
