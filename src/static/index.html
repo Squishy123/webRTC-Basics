@@ -8,13 +8,21 @@
 </head>
 
 <body>
+    <div class="alerts"></div>
     <div class="main">
         <div class="panel">
             <h1>WebRTC Demo</h1>
-            <button class="button" id="getAccess">Gain Access To Camera</button>
+            <div class="login">
+                    <label for="username">Login:</label>
+                    <input id="username" placeholder="username" required="" autofocus="">
+                    <button class="button" id="login">login</button>
+            </div>
+            <button class="button" id="getAccess">Open Webcam</button>
         </div>
         <video class="video" id="vidStream" autoplay></video>
+       
     </div>
+
 
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script src="/main.js"></script>

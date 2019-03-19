@@ -20,6 +20,8 @@ body {
     color: white;
     outline: none;
 
+    transform-origin: 0% 50%;
+
     transition: .25s linear;
     display: flex;
     flex-direction: row;
@@ -52,12 +54,41 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .panel > h1 {
     margin-bottom: 7px;
 }
+
+.panel > button {
+    margin-top: 15px;
+}
+
+.login {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.login > label {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.login > input {
+    padding: 5px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.login > button {
+    margin-top: 15px;
+}
+
 
 .video {
     border-radius: 10px;
@@ -80,3 +111,22 @@ body {
         margin: auto;
     }
     }
+
+.alerts {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.alert {
+    opacity: 0.75;
+    padding: 10px;
+    width: 100vw;
+    min-height:10px;
+    background-color: black;
+    color: white;
+}
+
+.hidden {
+    display: none;
+}
