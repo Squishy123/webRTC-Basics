@@ -90,6 +90,41 @@ body {
 }
 
 
+.call {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.call > label {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.call > input {
+    padding: 5px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.call > button {
+    margin-top: 15px;
+}
+
+.streams {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.streams > * {
+    margin: 5px;
+}
+
 .video {
     border-radius: 10px;
     background-color: black;

@@ -17,10 +17,18 @@
                     <input id="username" placeholder="username" required="" autofocus="">
                     <button class="button" id="login">Connect</button>
             </div>
+            <div class="call hidden">
+                    <label for="callTo">Call to:</label>
+                    <input id="callUsername" placeholder="username" required="" autofocus="">
+                    <button class="button" id="call">Call</button>
+            </div>
         </div>
-        <video class="video" id="vidStream" autoplay></video>
-       
+        <div class="streams">
+                <video class="video" id="local" autoplay></video>
+                <video class="video" id="remote" autoplay></video>
+        </div>
     </div>
+   
 
 
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>

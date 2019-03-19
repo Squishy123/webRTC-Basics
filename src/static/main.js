@@ -1,14 +1,16 @@
 //store
-let stream, videoElement = document.querySelector('#vidStream')
+let stream, connection, videoElement = document.querySelector('#local')
     , loginElement = document.querySelector('.login')
     , usernameElement = document.querySelector('#username')
     , loginButton = document.querySelector('#login')
-    , alertsElement = document.querySelector('.alerts');
+    , alertsElement = document.querySelector('.alerts')
+    , callElement = document.querySelector('.call')
+    , callButton = document.querySelector('#call');
 
 
 //config for stun server
 let config = {
-    iceServers: [{url: 'stun: stun2.1.google.com:19302'}]
+    iceServers: [{ url: 'stun: stun2.1.google.com:19302' }]
 };
 
 
@@ -104,20 +106,43 @@ function loginReq(e) {
     });
 }
 
-function handleLogin(success) {
+async function handleLogin(success) {
     if (!success)
         addAlert(`ERROR: Login unsuccessful, username already taken`)
     else {
         addAlert(`Login Successful!`);
+        //hide login panels
         [...loginElement.children].forEach(c => {
-            if(c != loginButton)
+            if (c != loginButton)
                 c.classList.add('hidden');
         });
         loginButton.textContent = "Disconnect";
         loginButton.removeEventListener('click', loginReq);
         loginButton.addEventListener('click', logoutReq);
 
-        getWebCamAccess();
+        //show call panel
+        callElement.classList.remove('hidden');
+
+        //turn on cam and get stream
+        await getWebCamAccess();
+
+        connection = new RTCPeerConnection(config);
+        connection.addStream(stream);
+
+        //when new remote stream comes in
+        connection.onaddstream = event => {
+            document.querySelector('video#remote').srcObject = event.stream;
+        }
+
+        //when a new icecandidate is received
+        connection.onicecandidate = event => {
+            if(event.candidate) {
+                sendMessage({
+                    type: 'candidate',
+                    candidate: event.candidate
+                })
+            }
+        }
     }
 }
 
@@ -134,17 +159,20 @@ function logoutReq(e) {
 }
 
 function handleLogout(success) {
-    if(!success) {
+    if (!success) {
         addAlert(`ERROR: Logout Unsuccessful!`);
     } else {
         addAlert('Logout Successful!');
         [...loginElement.children].forEach(c => {
-            if(c != loginButton)
+            if (c != loginButton)
                 c.classList.remove('hidden');
         });
         loginButton.textContent = "Connect";
         loginButton.removeEventListener('click', logoutReq);
         loginButton.addEventListener('click', loginReq);
+
+        //hide call panel
+        callElement.classList.add('hidden');
 
         removeWebCamAccess();
     }
