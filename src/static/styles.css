@@ -126,16 +126,16 @@ body {
 }
 
 .video {
-    max-width: 300px;
+    max-width: 500px;
     height: auto;
 
     border-radius: 10px;
     background-color: black;
-
+    
     /*flip so it mirrors*/
-    transform: rotateY(180deg);
+    /*transform: rotateY(180deg);
     -webkit-transform:rotateY(180deg); /* Safari and Chrome */
-    -moz-transform:rotateY(180deg); /* Firefox */
+    /*-moz-transform:rotateY(180deg); /* Firefox */
 }
 
 @media screen and (max-width: 899px) {

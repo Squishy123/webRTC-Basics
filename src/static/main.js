@@ -11,6 +11,8 @@ let stream, connection, videoElement = document.querySelector('#local')
 
 let otherUsername;
 
+let video = false;
+
 //config for stun server
 let config = {
     iceServers: [{ url: 'stun:stun2.1.google.com:19302' }]
@@ -137,8 +139,10 @@ async function handleLogin(success) {
     //show call panel
     callElement.classList.remove('hidden');
 
-    //turn on cam and get stream
-    await getWebCamAccess();
+    if (!video) {
+        //turn on cam and get stream
+        await getWebCamAccess();
+    }
 
     connection = new RTCPeerConnection(config);
     connection.addStream(stream);
@@ -240,9 +244,11 @@ async function handleOffer(offer, username) {
     await connection.createAnswer(
         answer => {
             connection.setLocalDescription(answer);
-            sendMessage({ type: 'answer', 
-            answer: answer, 
-            otherUsername: username });
+            sendMessage({
+                type: 'answer',
+                answer: answer,
+                otherUsername: username
+            });
         },
         error => {
             addAlert(`ERROR: Answer creation error!`);
@@ -267,3 +273,22 @@ async function handleCandidate(candidate) {
     callButton.removeEventListener('click', stopReq);
     callButton.addEventListener('click', callReq);
 }
+
+document.querySelector('#gotocam').addEventListener('click', async function () {
+    await getWebCamAccess();
+});
+
+document.querySelector('#vidSourceSubmit').addEventListener('click', async function () {
+    stream = null;
+    videoElement.srcObject = null;
+    videoElement.src = document.querySelector('#vidSource').value;
+    video = true;
+    try {
+        videoElement.oncanplay = function () {
+            stream = videoElement.captureStream();
+        };
+
+    } catch (err) {
+        console.error(err);
+    }
+});
