@@ -93,6 +93,11 @@ body {
 .video {
     border-radius: 10px;
     background-color: black;
+
+    /*flip so it mirrors*/
+    transform: rotateY(180deg);
+    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+    -moz-transform:rotateY(180deg); /* Firefox */
 }
 
 @media (max-width: 899px) {

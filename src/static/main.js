@@ -1,26 +1,27 @@
 //store
 let stream, videoElement = document.querySelector('#vidStream')
-    , accessButton = document.querySelector('#getAccess')
     , loginElement = document.querySelector('.login')
     , usernameElement = document.querySelector('#username')
     , loginButton = document.querySelector('#login')
     , alertsElement = document.querySelector('.alerts');
+
+
+//config for stun server
+let config = {
+    iceServers: [{url: 'stun: stun2.1.google.com:19302'}]
+};
+
 
 //give webcam access and render it in video element
 async function getWebCamAccess(e) {
     try {
         //grab webcam video input
         stream = await navigator.mediaDevices.getUserMedia({
-            video: true
+            video: true,
+            audio: false
         });
         //set video src to stream
         videoElement.srcObject = stream;
-        //button label
-        accessButton.textContent = `Close Webcam`;
-
-        //add close event listener
-        accessButton.removeEventListener('click', getWebCamAccess);
-        accessButton.addEventListener('click', removeWebCamAccess);
     } catch (err) {
         console.error(err);
     }
@@ -34,20 +35,10 @@ async function removeWebCamAccess(e) {
         });
         //set src = null
         videoElement.srcObject = null;
-        //button label
-        accessButton.textContent = `Open Webcam`;
-
-        //add open event listener
-        accessButton.removeEventListener('click', removeWebCamAccess);
-        accessButton.addEventListener('click', getWebCamAccess);
     } catch (err) {
         console.error(err);
     }
 }
-
-//add button listener
-accessButton.addEventListener('click', getWebCamAccess);
-
 
 //setup websocket connection
 let ws = new WebSocket('ws://localhost:3000');
@@ -122,9 +113,11 @@ function handleLogin(success) {
             if(c != loginButton)
                 c.classList.add('hidden');
         });
-        loginButton.textContent = "logout";
+        loginButton.textContent = "Disconnect";
         loginButton.removeEventListener('click', loginReq);
         loginButton.addEventListener('click', logoutReq);
+
+        getWebCamAccess();
     }
 }
 
@@ -149,8 +142,10 @@ function handleLogout(success) {
             if(c != loginButton)
                 c.classList.remove('hidden');
         });
-        loginButton.textContent = "login";
+        loginButton.textContent = "Connect";
         loginButton.removeEventListener('click', logoutReq);
         loginButton.addEventListener('click', loginReq);
+
+        removeWebCamAccess();
     }
 }

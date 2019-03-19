@@ -16,11 +16,11 @@ server.get('/', restify.plugins.serveStatic({
 }))
 
 server.listen(8000, () => {
-        console.log(`Server listening on ${server.name}, ${server.url}`);
+    console.log(`Server listening on ${server.name}, ${server.url}`);
 });
 
 //ws server
-let wsServer = new WebSocket.Server({port: 3000});
+let wsServer = new WebSocket.Server({ port: 3000 });
 //keep track of users
 let users = [];
 
@@ -38,25 +38,25 @@ wsServer.on('connection', ws => {
 
         try {
             data = JSON.parse(message);
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
 
-        switch(data.type) {
+        switch (data.type) {
             case 'login':
                 //check if username is unique
-                if(users[data.username]) {
-                    sendTo(ws, {type: 'login', success: false});
+                if (users[data.username]) {
+                    sendTo(ws, { type: 'login', success: false });
                 } else {
                     users[data.username] = ws;
                     ws.username = data.username;
-                    sendTo(ws, {type: 'login', success: true});
+                    sendTo(ws, { type: 'login', success: true });
                     console.log(`User ${data.username} logged in!`);
                 }
                 break;
             case 'logout':
                 users[data.username] = null;
-                sendTo(ws, {type: 'logout', success: true});
+                sendTo(ws, { type: 'logout', success: true });
                 break;
         }
     });
@@ -65,7 +65,9 @@ wsServer.on('connection', ws => {
         let k = [...users.keys()].find((e) => {
             return users[e] == ws;
         });
-        console.log(`User ${users[k].username} logged off!`);
-        users[k] = null;
+        if (k) {
+            console.log(`User ${users[k].username} logged off!`);
+            users[k] = null;
+        }
     })
 });
