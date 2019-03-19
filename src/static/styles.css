@@ -43,7 +43,7 @@ body {
     height: 100%;
     align-self: center;
     display: flex;
-    flex-direction: row;
+    flex-direction: row-reverse;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
@@ -126,6 +126,9 @@ body {
 }
 
 .video {
+    max-width: 300px;
+    height: auto;
+
     border-radius: 10px;
     background-color: black;
 
@@ -135,18 +138,18 @@ body {
     -moz-transform:rotateY(180deg); /* Firefox */
 }
 
-@media (max-width: 899px) {
-    .video {
-        max-width: 100vw;
-        height: auto;
-    }
-
-    .main {
+@media screen and (max-width: 899px) {
+    /*.main {
         flex-direction: column-reverse;
-    }
+    }*/
 }
 
-@media (min-width: 900px) {
+@media screen and (min-width: 900px) {
+    /*
+    .main {
+        flex-direction: row-reverse;
+    }*/
+
     .main>* {
         margin: auto;
     }

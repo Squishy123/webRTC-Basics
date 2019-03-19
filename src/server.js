@@ -58,6 +58,39 @@ wsServer.on('connection', ws => {
                 users[data.username] = null;
                 sendTo(ws, { type: 'logout', success: true });
                 break;
+            case 'offer':
+                if(users[data.otherUsername]) {
+                    console.log(`Sending offer from ${ws.username} to ${data.otherUsername}`);
+                    ws.otherUsername = data.otherUsername;
+                    sendTo(users[data.otherUsername], {
+                        type: 'offer',
+                        offer: data.offer,
+                        username: ws.username
+                    });
+                }
+                break;
+            case 'answer':
+                if(users[data.otherUsername]) {
+                    console.log("Sending answer");
+                    //console.log(data.answer);
+                    ws.otherUsername = data.otherUsername;
+                    sendTo(users[data.otherUsername], {
+                        type:'answer',
+                        answer: data.answer
+                    });
+                }
+                break;
+            case 'candidate':
+                if(users[data.otherUsername]) {
+                    console.log(`New Candidate received`);
+                    sendTo(users[data.otherUsername], {
+                        type: 'candidate',
+                        candidate: data.candidate
+                    });
+                }
+                break;
+            case 'default':
+                break;
         }
     });
 

@@ -1,16 +1,19 @@
 //store
 let stream, connection, videoElement = document.querySelector('#local')
+    , remoteElement = document.querySelector('#remote')
     , loginElement = document.querySelector('.login')
     , usernameElement = document.querySelector('#username')
     , loginButton = document.querySelector('#login')
     , alertsElement = document.querySelector('.alerts')
     , callElement = document.querySelector('.call')
-    , callButton = document.querySelector('#call');
+    , callButton = document.querySelector('#call')
+    , callUsernameElement = document.querySelector('#callUsername');
 
+let otherUsername;
 
 //config for stun server
 let config = {
-    iceServers: [{ url: 'stun: stun2.1.google.com:19302' }]
+    iceServers: [{ url: 'stun:stun2.1.google.com:19302' }]
 };
 
 
@@ -54,7 +57,7 @@ ws.onerror = err => {
 }
 
 ws.onmessage = msg => {
-    console.log(`Message received: ${msg}`);
+    //console.log(`Message received: ${msg}`);
 
     let data = JSON.parse(msg.data);
     switch (data.type) {
@@ -63,6 +66,16 @@ ws.onmessage = msg => {
             break;
         case 'logout':
             handleLogout(data.success);
+            break;
+        case 'offer':
+            console.log(data);
+            handleOffer(data.offer, data.username);
+            break;
+        case 'answer':
+            handleAnswer(data.answer);
+            break;
+        case 'candidate':
+            handleCandidate(data.candidate);
             break;
     }
 }
@@ -107,41 +120,44 @@ function loginReq(e) {
 }
 
 async function handleLogin(success) {
-    if (!success)
-        addAlert(`ERROR: Login unsuccessful, username already taken`)
-    else {
-        addAlert(`Login Successful!`);
-        //hide login panels
-        [...loginElement.children].forEach(c => {
-            if (c != loginButton)
-                c.classList.add('hidden');
-        });
-        loginButton.textContent = "Disconnect";
-        loginButton.removeEventListener('click', loginReq);
-        loginButton.addEventListener('click', logoutReq);
+    if (!success) {
+        addAlert(`ERROR: Login unsuccessful, username already taken`);
+        return;
+    }
+    addAlert(`Login Successful!`);
+    //hide login panels
+    [...loginElement.children].forEach(c => {
+        if (c != loginButton)
+            c.classList.add('hidden');
+    });
+    loginButton.textContent = "Disconnect";
+    loginButton.removeEventListener('click', loginReq);
+    loginButton.addEventListener('click', logoutReq);
 
-        //show call panel
-        callElement.classList.remove('hidden');
+    //show call panel
+    callElement.classList.remove('hidden');
 
-        //turn on cam and get stream
-        await getWebCamAccess();
+    //turn on cam and get stream
+    await getWebCamAccess();
 
-        connection = new RTCPeerConnection(config);
-        connection.addStream(stream);
+    connection = new RTCPeerConnection(config);
+    connection.addStream(stream);
 
-        //when new remote stream comes in
-        connection.onaddstream = event => {
-            document.querySelector('video#remote').srcObject = event.stream;
-        }
+    //console.log(connection);
 
-        //when a new icecandidate is received
-        connection.onicecandidate = event => {
-            if(event.candidate) {
-                sendMessage({
-                    type: 'candidate',
-                    candidate: event.candidate
-                })
-            }
+    //when new remote stream comes in
+    connection.onaddstream = event => {
+        remoteElement.srcObject = event.stream;
+    }
+
+    //when a new icecandidate is received
+    connection.onicecandidate = event => {
+        if (event.candidate) {
+            sendMessage({
+                type: 'candidate',
+                candidate: event.candidate,
+                otherUsername: otherUsername
+            });
         }
     }
 }
@@ -161,19 +177,93 @@ function logoutReq(e) {
 function handleLogout(success) {
     if (!success) {
         addAlert(`ERROR: Logout Unsuccessful!`);
-    } else {
-        addAlert('Logout Successful!');
-        [...loginElement.children].forEach(c => {
-            if (c != loginButton)
-                c.classList.remove('hidden');
-        });
-        loginButton.textContent = "Connect";
-        loginButton.removeEventListener('click', logoutReq);
-        loginButton.addEventListener('click', loginReq);
-
-        //hide call panel
-        callElement.classList.add('hidden');
-
-        removeWebCamAccess();
+        return;
     }
+    addAlert('Logout Successful!');
+    [...loginElement.children].forEach(c => {
+        if (c != loginButton)
+            c.classList.remove('hidden');
+    });
+    loginButton.textContent = "Connect";
+    loginButton.removeEventListener('click', logoutReq);
+    loginButton.addEventListener('click', loginReq);
+
+    //hide call panel
+    callElement.classList.add('hidden');
+
+    removeWebCamAccess();
+}
+
+function callReq(e) {
+    if (callUsernameElement.value.length <= 0) {
+        addAlert(`ERROR: Please enter a username!`);
+        return;
+    }
+
+    otherUsername = callUsernameElement.value;
+    //console.log(otherUsername);
+    connection.createOffer(
+        offer => {
+            sendMessage({
+                type: 'offer',
+                offer: offer,
+                otherUsername: otherUsername
+            });
+
+            connection.setLocalDescription(offer);
+        },
+        error => {
+            addAlert(`ERROR: Offer creation error!`);
+        }
+    )
+
+}
+
+function stopReq(e) {
+    otherUsername = null;
+    remoteElement.src = null;
+    connection.close();
+    connection.onicecandidate = null;
+    connection.onaddstream = null;
+
+    callButton.removeEventListener('click', stopReq);
+    callButton.addEventListener('click', callReq);
+}
+
+//add callreq listener
+callButton.addEventListener('click', callReq);
+
+async function handleOffer(offer, username) {
+    console.log("Handling offer!");
+    otherUsername = username;
+    await connection.setRemoteDescription(new RTCSessionDescription(offer));
+    await connection.createAnswer(
+        answer => {
+            connection.setLocalDescription(answer);
+            sendMessage({ type: 'answer', 
+            answer: answer, 
+            otherUsername: username });
+        },
+        error => {
+            addAlert(`ERROR: Answer creation error!`);
+        }
+    )
+}
+
+async function handleAnswer(answer) {
+    console.log(`Handle Answers:${answer}`);
+    await connection.setRemoteDescription(new RTCSessionDescription(answer));
+
+    callButton.textContent = "Drop";
+    callButton.removeEventListener('click', callReq);
+    callButton.addEventListener('click', stopReq);
+}
+
+async function handleCandidate(candidate) {
+    console.log(`Handle candidate`);
+    await connection.addIceCandidate(new RTCIceCandidate(candidate));
+
+    callButton.textContent = "Call";
+    callButton.removeEventListener('click', stopReq);
+    callButton.addEventListener('click', callReq);
 }
