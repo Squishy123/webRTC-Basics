@@ -1,2 +1,2 @@
 # webRTC-Basics
-Repo containing code for tutorial found at https://flaviocopes.com/webrtc/ 
+Repo containing adapted code from article found at https://flaviocopes.com/webrtc/ 
